@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/06 19:52:35 by slazar            #+#    #+#             */
-/*   Updated: 2023/06/06 21:10:42 by slazar           ###   ########.fr       */
+/*   Updated: 2023/06/08 15:28:24 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ typedef struct philo
     int l_fork;
     int r_fork;
     pthread_t th;
-    t_tools *t;
+    t_tools *tools;
 } t_philo;
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/06 19:51:43 by slazar            #+#    #+#             */
-/*   Updated: 2023/06/09 13:26:48 by slazar           ###   ########.fr       */
+/*   Updated: 2023/06/09 23:28:57 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ void check_args_part2(int ac,char **av)
         printf("Error: wrong number of times each philosopher must eat\n");
         exit(1);
     }
-    else if ( ft_atoi(av[1]) < 0 || ft_atoi(av[2] < 0 || ft_atoi(av[3]) < 0 ||ft_atoi(av[4]) < 0)
+    else if ( ft_atoi(av[1]) < 0 || ft_atoi(av[2]) < 0 || ft_atoi(av[3]) < 0 || ft_atoi(av[4]) < 0)
     {
         printf("Error: wrong argument\n");
         exit(1);
@@ -90,7 +90,7 @@ void check_args(int ac, char **av)
         printf("Error: wrong number of arguments\n");
         exit(1);
     }
-    else if (ft_atoi(av[1]) < 2)
+    else if (ft_atoi(av[1]) < 1)
     {
         printf("Error: wrong number of philosophers\n");
         exit(1);

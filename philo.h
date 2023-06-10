@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/06 19:52:35 by slazar            #+#    #+#             */
-/*   Updated: 2023/06/09 23:31:11 by slazar           ###   ########.fr       */
+/*   Updated: 2023/06/10 17:13:16 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ typedef struct tools
     int time_to_eat;
     int time_to_sleep;
     int number_of_times_each_philosopher_must_eat;
+    struct timeval t_0;
     pthread_mutex_t *forks;
 } t_tools;
 
@@ -34,13 +35,12 @@ typedef struct philo
     int id;
     int l_fork;
     int r_fork;
-    long long last_meal;
+    // long long last_meal;
     pthread_t th;
     t_tools *tools;
 } t_philo;
 
 /*
-
 p_philo {
     int id;
     pthread_mutex_t *l_fork;
@@ -78,5 +78,6 @@ while (1)
 }
 
 */
-
+int gettime(t_tools *tools);
+void ft_usleep(int time);
 #endif

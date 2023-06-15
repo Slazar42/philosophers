@@ -4,7 +4,7 @@ SRCS = philo.c\
 
 CC = cc
 
-CFLAGS = -Wall -Werror -Wextra
+CFLAGS = -Wall -Werror -Wextra 
 
 OBJS = ${SRCS:.c=.o}
 

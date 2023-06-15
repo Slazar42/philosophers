@@ -6,7 +6,7 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/06 19:51:43 by slazar            #+#    #+#             */
-/*   Updated: 2023/06/15 22:05:01 by slazar           ###   ########.fr       */
+/*   Updated: 2023/06/15 22:14:01 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,7 +170,7 @@ int check_args(int ac, char **av)
         return(0);
     return(1);
 }
-void clean
+// void clean
 int main(int ac, char **av)
 {
     int j;
@@ -195,7 +195,7 @@ int main(int ac, char **av)
             pthread_mutex_lock(&tools.print_lock);
             printf("\x1B[31m%lld %d died\n",gettime(philo[j].tools), philo[j].id);
             
-            return(0);
+            return (0);
         }
         j = (j + 1) % philo->tools->number_of_philosophers;
     }

@@ -6,21 +6,36 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/06 19:51:43 by slazar            #+#    #+#             */
-/*   Updated: 2023/06/15 22:14:01 by slazar           ###   ########.fr       */
+/*   Updated: 2023/08/29 17:31:48 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include"philo.h"
 
+void printing(t_philo *ph,char action)
+{
+    if (ph->tools->is_dead == 1)
+        return;
+    pthread_mutex_lock(&ph->tools->print_lock);
+    if(action == 'f')
+        printf("\x1B[35m%lld %d has taken a fork\n", gettime(ph->tools), ph->id);
+    else if(action == 'e')
+        printf("\x1B[32m%lld %d is eating\n",gettime(ph->tools), ph->id);
+    else if(action == 's')
+        printf("\x1B[33m%lld %d is sleeping\n",gettime(ph->tools), ph->id);
+    else if(action == 't')
+        printf("\x1B[34m%lld %d is thinking\n",gettime(ph->tools), ph->id);
+    pthread_mutex_unlock(&ph->tools->print_lock);
+
+}
 void philo_eating(t_philo *ph)
 {
     pthread_mutex_lock(&ph->tools->forks[ph->l_fork]);
     pthread_mutex_lock(&ph->tools->forks[ph->r_fork]);
+    printing(ph,'f');
+    printing(ph,'f');
     ph->last_meal = gettime(ph->tools);
-    pthread_mutex_lock(&ph->tools->print_lock);
-    printf("\x1B[35m%lld %d has taken a fork\n", gettime(ph->tools), ph->id);
-    printf("\x1B[32m%lld %d is eating\n",gettime(ph->tools), ph->id);
-    pthread_mutex_unlock(&ph->tools->print_lock);
+    printing(ph,'e');
     ft_usleep(ph->tools->time_to_eat, ph);
     pthread_mutex_unlock(&ph->tools->forks[ph->l_fork]);
     pthread_mutex_unlock(&ph->tools->forks[ph->r_fork]);
@@ -28,18 +43,13 @@ void philo_eating(t_philo *ph)
 
 void philo_sleeping(t_philo *ph)
 {
-    pthread_mutex_lock(&ph->tools->print_lock);
-    printf("\x1B[33m%lld %d is sleeping\n",gettime(ph->tools), ph->id);
-    pthread_mutex_unlock(&ph->tools->print_lock);
+    printing(ph,'s');
     ft_usleep(ph->tools->time_to_sleep, ph);
 }
 
 void philo_thinking(t_philo *ph)
 {
-    pthread_mutex_lock(&ph->tools->print_lock);
-    printf("\x1B[34m%lld %d is thinking\n",gettime(ph->tools), ph->id);
-    pthread_mutex_unlock(&ph->tools->print_lock);
-
+    printing(ph,'t');
 }
 
 void ft_usleep(int time, t_philo *ph)
@@ -74,6 +84,7 @@ void routine(void *arg)
         philo_thinking(ph);
     }
 }
+
 int ft_atoi(char *str)
 {
     int s;
@@ -107,12 +118,13 @@ t_philo *initialisation(t_tools *tools, t_philo *philo ,int ac,char **av)
     if(ac == 6)
         tools->number_of_times_each_philosopher_must_eat = ft_atoi(av[5]);
     philo = malloc(sizeof(t_philo)* tools->number_of_philosophers);
+    tools->forks = malloc(sizeof(pthread_mutex_t)*tools->number_of_philosophers);
     i = -1;
     while (++i < tools->number_of_philosophers)
     {
+        philo[i].r_fork = i;
         philo[i].l_fork = i + 1;
         philo[i].id = i + 1;
-        philo[i].r_fork = i;
         if (i == tools->number_of_philosophers -1)
             philo[i].l_fork = 0;
         philo[i].tools = tools;
@@ -170,7 +182,7 @@ int check_args(int ac, char **av)
         return(0);
     return(1);
 }
-// void clean
+
 int main(int ac, char **av)
 {
     int j;
@@ -183,10 +195,13 @@ int main(int ac, char **av)
     if (!check_args(ac,av))
         return(0);
     philo = initialisation(&tools,philo,ac,av);
-    pthread_mutex_init(&tools.print_lock,0);
+    pthread_mutex_init(&tools.print_lock,NULL);
     philo->tools->is_dead = 0;
     while (++i < tools.number_of_philosophers)
         pthread_create(&philo[i].th, NULL,(void *)routine, &philo[i]);
+    // i = -1;
+    // while (++i < tools.number_of_philosophers)
+    //     pthread_join(philo[i].th, NULL);
     while(1)
     {
         if(gettime(&tools) - philo[j].last_meal >= philo->tools->time_to_die)
@@ -194,10 +209,11 @@ int main(int ac, char **av)
             philo->tools->is_dead = 1;
             pthread_mutex_lock(&tools.print_lock);
             printf("\x1B[31m%lld %d died\n",gettime(philo[j].tools), philo[j].id);
-            
             return (0);
         }
         j = (j + 1) % philo->tools->number_of_philosophers;
     }
-    return 0;
+    i = -1;
+    while (++i < tools.number_of_philosophers)
+        pthread_detach(philo[i].th);
 }

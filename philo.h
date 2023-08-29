@@ -29,7 +29,7 @@ typedef struct tools
     int number_of_times_each_philosopher_must_eat;
     struct timeval t_0;
     pthread_mutex_t print_lock;
-    pthread_mutex_t forks[200];
+    pthread_mutex_t *forks;
 } t_tools;
 
 typedef struct philo

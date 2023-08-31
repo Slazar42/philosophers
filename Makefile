@@ -1,17 +1,17 @@
 NAME = philo
 
-SRCS = philo.c\
+SRCS = philo.c routine.c utils.c \
 
 CC = cc
 
-CFLAGS =  -Wall -Werror -Wextra  
+CFLAGS = -Wall -Werror -Wextra 
 
 OBJS = ${SRCS:.c=.o}
 
 all : $(NAME)
 
 $(NAME) : $(OBJS)
-		$(CC) -fsanitize=address -g $(FLAGS) $(OBJS) -o $(NAME) 
+		$(CC)  $(FLAGS) $(OBJS) -o $(NAME)
 clean :
 	rm -rf $(OBJS)
 

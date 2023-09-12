@@ -6,15 +6,16 @@
 /*   By: slazar <slazar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/06 19:51:43 by slazar            #+#    #+#             */
-/*   Updated: 2023/08/31 16:44:39 by slazar           ###   ########.fr       */
+/*   Updated: 2023/09/07 12:11:12 by slazar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-t_philo	*initialisation(t_tools *tools, t_philo *philo, char **av)
+t_philo	*initialisation(t_tools *tools, char **av)
 {
-	int	i;
+	int		i;
+	t_philo	*philo;
 
 	tools->number_of_philosophers = ft_atoi(av[1]);
 	tools->time_to_die = ft_atoi(av[2]);
@@ -22,9 +23,9 @@ t_philo	*initialisation(t_tools *tools, t_philo *philo, char **av)
 	tools->time_to_sleep = ft_atoi(av[4]);
 	if (av[5])
 		tools->max_of_meals = ft_atoi(av[5]);
-	tools->is_dead = 0;
 	philo = malloc(sizeof(t_philo) * tools->number_of_philosophers);
 	i = -1;
+	gettimeofday(&tools->t_0, 0);
 	while (++i < tools->number_of_philosophers)
 	{
 		philo[i].l_fork = i + 1;
@@ -33,11 +34,10 @@ t_philo	*initialisation(t_tools *tools, t_philo *philo, char **av)
 		if (i == tools->number_of_philosophers - 1)
 			philo[i].l_fork = 0;
 		philo[i].tools = tools;
-	}
-	gettimeofday(&tools->t_0, 0);
-	i = -1;
-	while (++i < tools->number_of_philosophers)
+		philo[i].n_of_meals = 0;
+		philo[i].last_meal = gettime(tools);
 		pthread_mutex_init(&tools->forks[i], NULL);
+	}
 	return (philo);
 }
 
@@ -53,7 +53,7 @@ int	check_args_part2(int ac, char **av)
 		printf("\x1B[31mError: wrong time to sleep\n");
 		return (0);
 	}
-	else if (ac == 6 && ft_atoi(av[5]) < 0)
+	else if (ac == 6 && ft_atoi(av[5]) <= 0)
 	{
 		printf("\x1B[31mError: wrong max eat number\n");
 		return (0);
@@ -96,14 +96,23 @@ int	check_args(int ac, char **av)
 
 int	check_number_of_meals(t_philo *philo)
 {
-	int	id;
+	int	i;
+	int	j;
 
-	id = 0;
-	while (id < philo->tools->number_of_philosophers)
+	i = 0;
+	while (i < philo->tools->number_of_philosophers)
 	{
-		if (philo[id].n_of_meals <= philo->tools->max_of_meals)
-			return (0);
-		id++;
+		pthread_mutex_lock(&philo->tools->meals);
+		j = philo->n_of_meals;
+		pthread_mutex_unlock(&philo->tools->meals);
+		if (j > philo->tools->max_of_meals)
+		{
+			if (i == philo->tools->number_of_philosophers - 1)
+				return (0);
+		}
+		else
+			return (1);
+		i++;
 	}
 	return (1);
 }
@@ -118,21 +127,9 @@ int	main(int ac, char **av)
 	philo = NULL;
 	if (!check_args(ac, av))
 		return (0);
-	philo = initialisation(&tools, philo, av);
-	pthread_mutex_init(&tools.print_lock, 0);
+	tools.forks = malloc(sizeof(pthread_mutex_t) * ft_atoi(av[1]));
+	philo = initialisation(&tools, av);
 	start_threads(philo);
-	while (1)
-	{
-		if (gettime(&tools) - philo[j].last_meal >= philo->tools->time_to_die)
-		{
-			philo->tools->is_dead = 1;
-			pthread_mutex_lock(&tools.print_lock);
-			printf("\x1B[31m%lld %d died\n", gettime(philo[j].tools),
-				philo[j].id);
-			return (0);
-		}
-		if (av[5] && check_number_of_meals(philo))
-			return (0);
-		j = (j + 1) % philo->tools->number_of_philosophers;
-	}
+	death(philo, av);
+	ft_destroy(philo);
 }
